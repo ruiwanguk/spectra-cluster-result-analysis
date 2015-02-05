@@ -26,6 +26,7 @@ high_quality_cluster_results <- cluster_results[cluster_results$MAX_RATIO>=0.7 &
 
 # plotting
 library(ggplot2)
+library(gridExtra)
 
 # plot the ratio vs size (min 10 spectra)
 ggplot(cluster_results, aes(x=NUM_SPECTRA, y=MAX_RATIO)) +
@@ -93,31 +94,48 @@ ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA, y=PMZ_RANGE)) +
 
 
 # plot the number of projects
-ggplot(cluster_results, aes(x=NUM_SPECTRA, y=NUM_PROJECTS)) +
+spectra_projects <- ggplot(cluster_results, aes(x=NUM_SPECTRA, y=NUM_PROJECTS)) +
     geom_point(shape=1) +
-    ggtitle("Number of Projects vs Size (min 10 spectra)") +
+    ggtitle("All Clusters") +
     xlab("Number of Spectra") +
     ylab("NUmber of Projects")
 
-ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA, y=NUM_PROJECTS)) +
+spectra_projects_high <- ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA, y=NUM_PROJECTS)) +
     geom_point(shape=1) +
-    ggtitle("Number of Projects vs Size (min 10 spectra)") +
+    ggtitle("High Quality Clusters") +
     xlab("Number of Spectra") +
     ylab("NUmber of Projects")
 
-ggplot(cluster_results, aes(x=MAX_RATIO, y=NUM_PROJECTS)) +
+ratio_projects <- ggplot(cluster_results, aes(x=MAX_RATIO, y=NUM_PROJECTS)) +
     geom_point(shape=1) +
-    ggtitle("Number of Projects vs Ratio (min 10 spectra)") +
+    ggtitle("All Clusters") +
     xlab("Ratio") +
     ylab("NUmber of Projects")
 
-ggplot(high_quality_cluster_results, aes(x=MAX_RATIO, y=NUM_PROJECTS)) +
+ratio_projects_high <- ggplot(high_quality_cluster_results, aes(x=MAX_RATIO, y=NUM_PROJECTS)) +
     geom_point(shape=1) +
-    ggtitle("Number of Projects vs Ratio (min 10 spectra)") +
+    ggtitle("High Quality Clusters") +
     xlab("Ratio") +
     ylab("NUmber of Projects")
+
+grid.arrange(spectra_projects, spectra_projects_high, ratio_projects, ratio_projects_high, ncol=2)
 
 # plot the species
+species <- ggplot(cluster_results, aes(x=NUM_SPECIES)) +
+    geom_histogram(aes(y=..density..), binwidth=1, colour="black", fill="white") +
+    geom_density(fill="#FF6666", alpha=.3) +
+    ggtitle("All Clusters") +
+    xlab("Number Of Species") +
+    ylab("Density")
+
+species_high <- ggplot(high_quality_cluster_results, aes(x=NUM_SPECIES)) +
+    geom_histogram(aes(y=..density..), binwidth=1, colour="black", fill="white") +
+    geom_density(fill="#FF6666", alpha=.3) +
+    ggtitle("High Quality Clusters") +
+    xlab("Number Of Species") +
+    ylab("Density")
+
+grid.arrange(species_plot, species_plot_high, ncol=2)
 
 
 
