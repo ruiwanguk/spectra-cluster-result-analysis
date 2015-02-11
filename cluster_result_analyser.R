@@ -6,6 +6,9 @@ print(args)
 # read the first argument as the input file
 cluster_results <- read.csv2(args[1], sep="\t", na.strings="NA", stringsAsFactors=FALSE, fill=TRUE)
 
+# read the output directory
+output_file <- args[2]
+
 # remove input arguments
 rm(args)
 
@@ -28,70 +31,84 @@ high_quality_cluster_results <- cluster_results[cluster_results$MAX_RATIO>=0.7 &
 library(ggplot2)
 library(gridExtra)
 
+# define output 
+pdf(output_file)
+
 # plot the ratio vs size (min 10 spectra)
-ggplot(cluster_results, aes(x=NUM_SPECTRA, y=MAX_RATIO)) +
+ratio_size <- ggplot(cluster_results, aes(x=NUM_SPECTRA, y=MAX_RATIO)) +
     geom_point(shape=1) +
-    ggtitle("Ratio vs Size (min 10 spectra)") +
+    ggtitle("All Clusters") +
     xlab("Number of Spectra") +
-    ylab("PSM Ratio")
+    ylab("Max Ratio")
 
 # plot the ratio distribution in density histogram
-ggplot(cluster_results, aes(x=MAX_RATIO)) +
+ratio_size_density <- ggplot(cluster_results, aes(x=MAX_RATIO)) +
     geom_histogram(aes(y=..density..), binwidth=.01, colour="black", fill="white") +
     geom_density(fill="#FF6666", alpha=.3) +
-    ggtitle("PSM Ratio Distribution") +
-    xlab("PSM Ratio") +
+    ggtitle("All Clusters") +
+    xlab("Max Ratio") +
     ylab("Density")
 
-# plot the ratio distribution for high quality clusters
-ggplot(high_quality_cluster_results, aes(x=MAX_RATIO)) +
+ratio_size_high <- ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA, y=MAX_RATIO)) +
+    geom_point(shape=1) +
+    ggtitle("High Quality Clusters") +
+    xlab("Number of Spectra") +
+    ylab("Max Ratio")
+
+# plot the ratio distribution in density histogram
+ratio_size_density_high <- ggplot(high_quality_cluster_results, aes(x=MAX_RATIO)) +
     geom_histogram(aes(y=..density..), binwidth=.01, colour="black", fill="white") +
     geom_density(fill="#FF6666", alpha=.3) +
-    ggtitle("PSM Ratio Distrition for High Quality Clusters") +
-    xlab("PSM Ratio") +
+    ggtitle("High Quality Clusters") +
+    xlab("Max Ratio") +
     ylab("Density")
+
+grid.arrange(ratio_size, ratio_size_high, ratio_size_density, ratio_size_density_high, ncol=2)
 
 
 # plot the size distribution
-ggplot(cluster_results, aes(x=NUM_SPECTRA)) +
+cluster_size <- ggplot(cluster_results, aes(x=NUM_SPECTRA)) +
     geom_density(fill="#FF6666", alpha=.3) +
-    ggtitle("Cluster Size Distribution") +
+    ggtitle("All Clusters") +
     xlab("Number Of Spectra") +
     ylab("Density")
 
-ggplot(cluster_results, aes(x=factor(0), y = NUM_SPECTRA)) +
+cluster_size_box <- ggplot(cluster_results, aes(x=factor(0), y = NUM_SPECTRA)) +
     geom_boxplot() +
-    ggtitle("Cluster Size Distribution") +
+    ggtitle("All Clusters") +
     xlab("") +
     ylab("Number Of Spectra")
 
 # plot the size distribution for high quality cluster
-ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA)) +
+cluster_size_high <- ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA)) +
     geom_density(fill="#FF6666", alpha=.3) +
-    ggtitle("Cluster Size Distribution For High Quality Cluster") +
+    ggtitle("High Quality Clusters") +
     xlab("Number Of Spectra") +
     ylab("Density")
 
-ggplot(high_quality_cluster_results, aes(x=factor(0), y = NUM_SPECTRA)) +
+cluster_size_box_high <- ggplot(high_quality_cluster_results, aes(x=factor(0), y = NUM_SPECTRA)) +
     geom_boxplot() +
-    ggtitle("Cluster Size Distribution") +
+    ggtitle("High Quality Clusters") +
     xlab("") +
     ylab("Number Of Spectra")
 
+grid.arrange(cluster_size, cluster_size_high, cluster_size_box, cluster_size_box_high, ncol=2)
+
 # plot the precursor m/z range
-ggplot(cluster_results, aes(x=NUM_SPECTRA, y=PMZ_RANGE)) +
+mz_range <- ggplot(cluster_results, aes(x=NUM_SPECTRA, y=PMZ_RANGE)) +
     geom_point(shape=1) +
-    ggtitle("Precursor m/z Range vs Size (min 10 spectra)") +
+    ggtitle("All Clusters") +
     xlab("Number of Spectra") +
     ylab("Precursor m/z Range")
 
 # plot the precursor m/z range for high quality cluster
-ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA, y=PMZ_RANGE)) +
+mz_range_high <- ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA, y=PMZ_RANGE)) +
     geom_point(shape=1) +
-    ggtitle("Precursor m/z Range vs Size For High Quality Cluster") +
+    ggtitle("High Quality Clusters") +
     xlab("Number of Spectra") +
     ylab("Precursor m/z Range")
 
+grid.arrange(mz_range, mz_range_high, ncol=2)
 
 # plot the number of projects
 spectra_projects <- ggplot(cluster_results, aes(x=NUM_SPECTRA, y=NUM_PROJECTS)) +
@@ -106,19 +123,7 @@ spectra_projects_high <- ggplot(high_quality_cluster_results, aes(x=NUM_SPECTRA,
     xlab("Number of Spectra") +
     ylab("NUmber of Projects")
 
-ratio_projects <- ggplot(cluster_results, aes(x=MAX_RATIO, y=NUM_PROJECTS)) +
-    geom_point(shape=1) +
-    ggtitle("All Clusters") +
-    xlab("Ratio") +
-    ylab("NUmber of Projects")
-
-ratio_projects_high <- ggplot(high_quality_cluster_results, aes(x=MAX_RATIO, y=NUM_PROJECTS)) +
-    geom_point(shape=1) +
-    ggtitle("High Quality Clusters") +
-    xlab("Ratio") +
-    ylab("NUmber of Projects")
-
-grid.arrange(spectra_projects, spectra_projects_high, ratio_projects, ratio_projects_high, ncol=2)
+grid.arrange(spectra_projects, spectra_projects_high, ncol=2)
 
 # plot the species
 species <- ggplot(cluster_results, aes(x=NUM_SPECIES)) +
@@ -135,7 +140,26 @@ species_high <- ggplot(high_quality_cluster_results, aes(x=NUM_SPECIES)) +
     xlab("Number Of Species") +
     ylab("Density")
 
-grid.arrange(species_plot, species_plot_high, ncol=2)
+grid.arrange(species, species_high, ncol=2)
+
+# plot peptide and psms
+peptide <- ggplot(cluster_results, aes(x=NUM_PEPTIDES)) +
+    geom_histogram(aes(y=..density..), binwidth=1, colour="black", fill="white") +
+    geom_density(fill="#FF6666", alpha=.3) +
+    ggtitle("All Clusters") +
+    xlab("Number Of Peptides") +
+    ylab("Density")
+
+peptide_high <- ggplot(high_quality_cluster_results, aes(x=NUM_PEPTIDES)) +
+    geom_histogram(aes(y=..density..), binwidth=1, colour="black", fill="white") +
+    geom_density(fill="#FF6666", alpha=.3) +
+    ggtitle("High Quality Clusters") +
+    xlab("Number Of Peptides") +
+    ylab("Density")
+
+grid.arrange(peptide, peptide_high, ncol=2)
+
+dev.off()
 
 
 
